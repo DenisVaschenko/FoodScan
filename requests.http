@@ -1,0 +1,113 @@
+@baseUrl = http://localhost:8080
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTA1MmU5NS02OWFiLTQ1YTktOWYwYi0xYWNhYmVmMTNkZGIiLCJqdGkiOiI2ZDQzYWJhMC1lMDgyLTQ2MjgtODUwNS0yNzE1NjY3YzhhNDYiLCJuYmYiOjE3OTUzNDI2OTMsImV4cCI6MTc5NTM0MzU5MywiaXNzIjoiRm9vZFNjYW4iLCJhdWQiOiJGb29kU2Nhbi5DbGllbnQifQ.xl5Q0Tw7D8luFYZ9tbkGoqkrHNuu_sPZZQcje_oHI1A
+@refreshToken = UCulRgZx6p7ol8bZ3923CNQzrfQlgyRPyR9yrwkkh2/F+EUJdWE3NkS4OyKMP2qI
+@analysisId = eff7e0bb-6c7a-4123-9cdd-273f6d8fefbd
+### Register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{"email":"student@example.com","password":"LongPassword-123","displayName":"Студент"}
+
+### Login — copy both tokens from the response to variables above
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{"email":"student@example.com","password":"LongPassword-123"}
+
+### Refresh — replace BOTH tokens after success
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken":"{{refreshToken}}"}
+
+### Profile
+GET {{baseUrl}}/api/me
+Authorization: Bearer {{accessToken}}
+
+### Edit profile
+PUT {{baseUrl}}/api/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"displayName":"Нове ім'я"}
+
+### Catalog
+GET {{baseUrl}}/api/components?q=мол&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Track milk
+PUT {{baseUrl}}/api/me/components/1
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"reason":"allergy","note":""}
+
+### Track peanuts
+PUT {{baseUrl}}/api/me/components/6
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"reason":"avoid"}
+
+### Personal list
+GET {{baseUrl}}/api/me/components
+Authorization: Bearer {{accessToken}}
+
+### Analyze text
+@timeout 120
+POST {{baseUrl}}/api/analyses/text
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"text":"Склад: молоко, цукор. Може містити арахіс.","productName":"Приклад"}
+
+### Analyze one photo — place your file at ingredients.jpg next to this file
+@timeout 120
+POST {{baseUrl}}/api/analyses
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=FoodScanBoundary
+
+--FoodScanBoundary
+Content-Disposition: form-data; name="image"; filename="ingredients.jpg"
+Content-Type: image/jpeg
+
+< ./ingredients.jpg
+--FoodScanBoundary--
+
+### History
+GET {{baseUrl}}/api/analyses?page=1&pageSize=20
+Authorization: Bearer {{accessToken}}
+
+### Detail
+GET {{baseUrl}}/api/analyses/{{analysisId}}
+Authorization: Bearer {{accessToken}}
+
+### Correct text (creates a NEW analysis)
+POST {{baseUrl}}/api/analyses/{{analysisId}}/reanalyze
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"text":"Склад: цукор."}
+
+### Remove tracked component
+DELETE {{baseUrl}}/api/me/components/6
+Authorization: Bearer {{accessToken}}
+
+### Delete analysis
+DELETE {{baseUrl}}/api/analyses/{{analysisId}}
+Authorization: Bearer {{accessToken}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+
+{"refreshToken":"{{refreshToken}}"}
+
+### Process health
+GET {{baseUrl}}/health
+
+### Database readiness
+GET {{baseUrl}}/health/ready
+
+### OpenAPI
+GET {{baseUrl}}/openapi/v1.json
